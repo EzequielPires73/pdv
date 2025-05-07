@@ -1,5 +1,5 @@
 import 'package:comerciou_pdv/injections.dart';
-import 'package:comerciou_pdv/presentation/screens/home_screen.dart';
+import 'package:comerciou_pdv/presentation/screens/home/home_screen.dart';
 import 'package:comerciou_pdv/utils/custom_colors.dart';
 import 'package:flutter/material.dart';
 

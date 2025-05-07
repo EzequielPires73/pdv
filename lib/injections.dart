@@ -4,6 +4,7 @@ import 'package:comerciou_pdv/data/services/api_service.dart';
 import 'package:comerciou_pdv/domain/repositories/category_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/product_repository.dart';
 import 'package:comerciou_pdv/presentation/view_models/categories_view_model.dart';
+import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/products_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -30,4 +31,6 @@ Future<void> initInjec() async {
   injec.registerLazySingleton<CategoriesViewModel>(
     () => CategoriesViewModel(repository: injec()),
   );
+
+  injec.registerLazySingleton<OrderViewModel>(() => OrderViewModel());
 }

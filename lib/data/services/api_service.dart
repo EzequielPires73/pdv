@@ -7,7 +7,7 @@ class ApiService {
   ApiService({required this.dio}) {
     dio.options.baseUrl = 'https://api.comerciou.com.br/api/';
     dio.options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlVzdcOhcmlvIHBhZHLDo28iLCJVc2VySWQiOiIxIiwiRW1wcmVzYUlkIjoiMSIsIm5iZiI6MTc0NjIwNTk0NywiZXhwIjoxNzQ2MjkyMzQ3LCJpYXQiOjE3NDYyMDU5NDd9.fmhSqDwcJP7g3ecqKe90J2RWcxIsaOj1fJSR8WDXxfA';
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlVzdcOhcmlvIHBhZHLDo28iLCJVc2VySWQiOiIxIiwiRW1wcmVzYUlkIjoiMSIsIm5iZiI6MTc0NjYxOTI2OCwiZXhwIjoxNzQ2NzA1NjY4LCJpYXQiOjE3NDY2MTkyNjh9.TFg3n2D9yz9IKHK8dkrWYXBhG2pZEjOKwPs4w3uN2IQ';
     dio.options.connectTimeout = const Duration(seconds: 60);
     dio.options.receiveTimeout = const Duration(seconds: 60);
 

@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:comerciou_pdv/domain/models/item_pedido.dart';
 import 'package:comerciou_pdv/domain/models/modelo.dart';
 import 'package:comerciou_pdv/domain/models/produto.dart';
+import 'package:comerciou_pdv/injections.dart';
+import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
 import 'package:comerciou_pdv/presentation/widgets/button.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
+  final OrderViewModel orderViewModel = injec();
   final Produto product;
-  const ProductCard({super.key, required this.product});
+  ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +29,26 @@ class ProductCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => ModalAddProduct(product: product),
-          );
+          if (product.modelos.isNotEmpty) {
+            showDialog(
+              context: context,
+              builder: (context) => ModalAddProduct(product: product),
+            );
+          } else {
+            int quantity =
+                orderViewModel.quantity.text.isNotEmpty
+                    ? int.parse(orderViewModel.quantity.text)
+                    : 1;
+            orderViewModel.addItem(
+              ItemPedido(
+                idProduto: product.id,
+                precoTotal: product.valor * quantity,
+                precoUn: product.valor,
+                quantidade: quantity,
+                produto: product,
+              ),
+            );
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -38,7 +58,7 @@ class ProductCard extends StatelessWidget {
             spacing: 2,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 child: Image.memory(
                   bytes,
                   width: double.infinity,
@@ -71,6 +91,7 @@ class ModalAddProduct extends StatefulWidget {
 }
 
 class _ModalAddProductState extends State<ModalAddProduct> {
+  final OrderViewModel orderViewModel = injec();
   int quantidade = 1;
   Modelo? modeloSelecionado;
 
@@ -94,6 +115,7 @@ class _ModalAddProductState extends State<ModalAddProduct> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Colors.white,
       child: Container(
         constraints: BoxConstraints(maxWidth: 500),
         padding: const EdgeInsets.all(16),
@@ -101,54 +123,53 @@ class _ModalAddProductState extends State<ModalAddProduct> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Imagem do produto
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                bytes,
-                height: 220,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            Row(
+              spacing: 8,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    bytes,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.product.nome,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        widget.product.descricao,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-
-            // Nome e descrição
-            Text(
-              widget.product.nome,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.product.descricao,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-
             const SizedBox(height: 16),
 
-            // Modelos (se existirem)
-            if (widget.product.modelos.isNotEmpty) ...[
-              const Text('Selecione o modelo'),
-              DropdownButton<Modelo>(
-                isExpanded: true,
-                value: modeloSelecionado,
-                onChanged: (value) {
-                  setState(() {
-                    modeloSelecionado = value;
-                  });
-                },
-                items:
-                    widget.product.modelos.map((modelo) {
-                      return DropdownMenuItem(
-                        value: modelo,
-                        child: Text(
-                          '${modelo.nome} - R\$ ${modelo.valor.toStringAsFixed(2)}',
-                        ),
-                      );
-                    }).toList(),
+            if (widget.product.modelos.isNotEmpty)
+              ...widget.product.modelos.map(
+                (e) => RadioListTile(
+                  value: e,
+                  groupValue: modeloSelecionado,
+                  title: Text('${e.nome} - R\$ ${e.valor.toStringAsFixed(2)}'),
+                  onChanged: (value) {
+                    setState(() {
+                      modeloSelecionado = value;
+                    });
+                  },
+                ),
               ),
-            ],
-
             const SizedBox(height: 16),
 
             // Quantidade
@@ -199,7 +220,24 @@ class _ModalAddProductState extends State<ModalAddProduct> {
                   label: 'Adicionar',
                   full: false,
                   onPressed: () {
-                    // Aqui você pode enviar os dados selecionados (quantidade, modelo) para o carrinho ou fluxo desejado.
+                    Produto product = widget.product;
+                    orderViewModel.addItem(
+                      ItemPedido(
+                        idProduto: product.id,
+                        modelo: modeloSelecionado,
+                        idModeloProduto: modeloSelecionado?.id,
+                        precoTotal:
+                            modeloSelecionado != null
+                                ? modeloSelecionado!.valor * quantidade
+                                : product.valor * quantidade,
+                        precoUn:
+                            modeloSelecionado != null
+                                ? modeloSelecionado!.valor
+                                : product.valor,
+                        quantidade: quantidade,
+                        produto: product,
+                      ),
+                    );
                     Navigator.pop(context);
                   },
                 ),

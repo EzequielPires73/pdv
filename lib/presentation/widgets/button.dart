@@ -71,7 +71,7 @@ class Button extends StatelessWidget {
       case ButtonVariant.secondary:
         return SizedBox(
           width: full ? double.infinity : null,
-          height: 56,
+          height: 48,
           child: FilledButton(
             onPressed: isDisabled ? null : onPressed,
             style: ButtonStyle(
@@ -86,7 +86,7 @@ class Button extends StatelessWidget {
       case ButtonVariant.success:
         return SizedBox(
           width: full ? double.infinity : null,
-          height: 56,
+          height: 48,
           child: FilledButton(
             onPressed: isDisabled ? null : onPressed,
             style: ButtonStyle(
@@ -101,7 +101,7 @@ class Button extends StatelessWidget {
       case ButtonVariant.outlined:
         return SizedBox(
           width: full ? double.infinity : null,
-          height: 56,
+          height: 48,
           child: OutlinedButton(
             onPressed: isDisabled ? null : onPressed,
             style: ButtonStyle(
@@ -115,7 +115,7 @@ class Button extends StatelessWidget {
       case ButtonVariant.text:
         return SizedBox(
           width: full ? double.infinity : null,
-          height: 56,
+          height: 48,
           child: TextButton(
             onPressed: isDisabled ? null : onPressed,
             style: ButtonStyle(
