@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:comerciou_pdv/domain/models/item_pedido.dart';
 import 'package:comerciou_pdv/domain/models/modelo.dart';
 import 'package:comerciou_pdv/domain/models/produto.dart';
@@ -17,16 +14,11 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = (MediaQuery.of(context).size.width - (420 + 104)) / 4;
-    final String base64Data =
-        product.fotoThumbnail.contains(',')
-            ? product.fotoThumbnail.split(',')[1]
-            : product.fotoThumbnail;
 
-    Uint8List bytes = base64Decode(base64Data);
-
-    return ClipRRect(
+    return Card.filled(
+      color: Colors.white,
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: () {
           if (product.modelos.isNotEmpty) {
@@ -41,7 +33,7 @@ class ProductCard extends StatelessWidget {
                     : 1;
             orderViewModel.addItem(
               ItemPedido(
-                idProduto: product.id,
+                idProduto: product.id!,
                 precoTotal: product.valor * quantity,
                 precoUn: product.valor,
                 quantidade: quantity,
@@ -54,25 +46,48 @@ class ProductCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           width: width,
           constraints: BoxConstraints(minWidth: 164),
-          child: Column(
-            spacing: 2,
+          child: Row(
+            spacing: 8,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.memory(
-                  bytes,
-                  width: double.infinity,
-                  height: 148,
-                  fit: BoxFit.cover,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  color: Colors.grey.shade300,
+                  alignment: Alignment.center,
+                  child:
+                      product.pathLocation != null
+                          ? Image.network(
+                            product.pathLocation!,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                          )
+                          : Icon(Icons.image, size: 16),
                 ),
               ),
-              Text(
-                product.nome,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-              Text(
-                'R\$ ${product.valor}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.nome,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'R\$ ${product.valor}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -105,12 +120,6 @@ class _ModalAddProductState extends State<ModalAddProduct> {
 
   @override
   Widget build(BuildContext context) {
-    final String base64Data =
-        widget.product.fotoThumbnail.contains(',')
-            ? widget.product.fotoThumbnail.split(',')[1]
-            : widget.product.fotoThumbnail;
-    Uint8List bytes = base64Decode(base64Data);
-
     double valorFinal = modeloSelecionado?.valor ?? widget.product.valor;
 
     return Dialog(
@@ -126,15 +135,16 @@ class _ModalAddProductState extends State<ModalAddProduct> {
             Row(
               spacing: 8,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    bytes,
-                    height: 80,
-                    width: 80,
-                    fit: BoxFit.cover,
+                if (widget.product.pathLocation != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      widget.product.pathLocation!,
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +157,7 @@ class _ModalAddProductState extends State<ModalAddProduct> {
                         ),
                       ),
                       Text(
-                        widget.product.descricao,
+                        widget.product.descricao ?? '',
                         style: TextStyle(color: Colors.grey[700]),
                       ),
                     ],
@@ -223,7 +233,7 @@ class _ModalAddProductState extends State<ModalAddProduct> {
                     Produto product = widget.product;
                     orderViewModel.addItem(
                       ItemPedido(
-                        idProduto: product.id,
+                        idProduto: product.id!,
                         modelo: modeloSelecionado,
                         idModeloProduto: modeloSelecionado?.id,
                         precoTotal:

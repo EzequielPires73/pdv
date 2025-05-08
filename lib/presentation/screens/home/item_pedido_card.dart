@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:comerciou_pdv/domain/models/item_pedido.dart';
 import 'package:comerciou_pdv/injections.dart';
 import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
@@ -15,13 +12,6 @@ class ItemPedidoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String base64Data =
-        item.produto.fotoThumbnail.contains(',')
-            ? item.produto.fotoThumbnail.split(',')[1]
-            : item.produto.fotoThumbnail;
-
-    Uint8List bytes = base64Decode(base64Data);
-
     return Column(
       children: [
         Row(
@@ -29,12 +19,21 @@ class ItemPedidoCard extends StatelessWidget {
           spacing: 8,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.memory(
-                bytes,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
                 width: 40,
                 height: 40,
-                fit: BoxFit.cover,
+                color: Colors.grey.shade300,
+                alignment: Alignment.center,
+                child:
+                    item.produto.pathLocation != null
+                        ? Image.network(
+                          item.produto.pathLocation!,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        )
+                        : Icon(Icons.image, size: 16),
               ),
             ),
             Expanded(
@@ -47,7 +46,7 @@ class ItemPedidoCard extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
                   Text(
-                    item.modelo?.nome ?? item.produto.descricao,
+                    item.modelo?.nome ?? item.produto.descricao ?? '',
                     style: TextStyle(fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
