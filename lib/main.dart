@@ -3,6 +3,7 @@ import 'package:comerciou_pdv/presentation/screens/home/home_screen.dart';
 import 'package:comerciou_pdv/utils/custom_colors.dart';
 import 'package:flutter/material.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   initInjec();
@@ -12,10 +13,11 @@ void main() {
 
 class App extends StatelessWidget {
   const App({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
+      scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

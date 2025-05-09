@@ -1,10 +1,31 @@
+import 'package:comerciou_pdv/domain/models/cliente.dart';
+import 'package:comerciou_pdv/domain/models/forma_pagamento.dart';
 import 'package:comerciou_pdv/domain/models/item_pedido.dart';
 import 'package:comerciou_pdv/domain/models/pedido.dart';
+import 'package:comerciou_pdv/domain/repositories/order_repository.dart';
+import 'package:comerciou_pdv/presentation/view_models/core/base_crud_view_model.dart';
 import 'package:flutter/material.dart';
 
-class OrderViewModel extends ChangeNotifier {
+class OrderViewModel extends BaseCrudViewModel<Pedido> {
   Pedido? pedido;
   TextEditingController quantity = TextEditingController(text: '1');
+
+  OrderViewModel({required OrderRepository repository})
+    : super(repository: repository);
+
+  setClient(Cliente? client) {
+    if (pedido != null) {
+      pedido!.idClient = client?.id;
+    }
+    notifyListeners();
+  }
+
+  setPaymentMethod(FormaPagamento? paymentMethod) {
+    if (pedido != null) {
+      pedido!.idFormaPagamento = paymentMethod?.id;
+    }
+    notifyListeners();
+  }
 
   addItem(ItemPedido item) {
     try {

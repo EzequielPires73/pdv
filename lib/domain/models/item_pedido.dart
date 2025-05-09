@@ -30,13 +30,37 @@ class ItemPedido {
     Modelo? modelo,
   }) {
     return ItemPedido(
-      idProduto: this.idProduto,
+      idProduto: idProduto ?? this.idProduto,
       precoUn: precoUn ?? this.precoUn,
-      produto: this.produto,
+      produto: produto ?? this.produto,
       modelo: modelo ?? this.modelo,
       idModeloProduto: idModeloProduto ?? this.idModeloProduto,
       quantidade: quantidade ?? this.quantidade,
       precoTotal: precoTotal ?? this.precoTotal,
     );
+  }
+
+  factory ItemPedido.fromJson(Map<String, dynamic> json) {
+    return ItemPedido(
+      idProduto: json['idProduto'],
+      precoTotal: (json['precoTotal'] as num).toDouble(),
+      precoUn: (json['precoUn'] as num).toDouble(),
+      quantidade: json['quantidade'],
+      produto: Produto.fromJson(json['produto']),
+      idModeloProduto: json['idModeloProduto'],
+      modelo: json['modelo'] != null ? Modelo.fromJson(json['modelo']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idProduto': idProduto,
+      'precoTotal': precoTotal,
+      'precoUn': precoUn,
+      'quantidade': quantidade,
+      //'produto': produto.toJson(),
+      'idModeloProduto': idModeloProduto,
+      //'modelo': modelo?.toJson(),
+    };
   }
 }

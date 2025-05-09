@@ -40,7 +40,6 @@ class ApiService {
       if (token != null) {
         dio.options.headers['Authorization'] = 'Bearer $token';
       }
-      print([endpoint, params]);
       final response = await dio.get(endpoint, queryParameters: params);
       return response.data;
     } on DioException catch (e) {
@@ -49,7 +48,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(
+  Future<dynamic> post(
     String endpoint, {
     dynamic data,
     Map<String, dynamic>? params,
@@ -60,12 +59,12 @@ class ApiService {
       } else {
         dio.options.headers.remove("Content-Type");
       }
-
       final response = await dio.post(
         endpoint,
         data: data,
         queryParameters: params,
       );
+      print(response.data);
       return response.data;
     } on DioException catch (e) {
       print(e.response);

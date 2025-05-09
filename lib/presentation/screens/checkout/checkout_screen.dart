@@ -1,6 +1,10 @@
+import 'package:comerciou_pdv/domain/models/cliente.dart';
 import 'package:comerciou_pdv/domain/models/forma_pagamento.dart';
 import 'package:comerciou_pdv/domain/models/pedido.dart';
+import 'package:comerciou_pdv/domain/models/user.dart';
 import 'package:comerciou_pdv/injections.dart';
+import 'package:comerciou_pdv/presentation/screens/checkout/client_select.dart';
+import 'package:comerciou_pdv/presentation/screens/checkout/user_select.dart';
 import 'package:comerciou_pdv/presentation/view_models/clients_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/payment_mothods_view_model.dart';
@@ -40,6 +44,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final ClientsViewModel clientsViewModel = injec();
   final PaymentMothodsViewModel paymentMothodsViewModel = injec();
   FormaPagamento? paymentMethod;
+  Cliente? client;
+  User? user;
 
   @override
   Widget build(BuildContext context) {
@@ -82,74 +88,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ),
                             Text('Informações do cliente (opcional)'),
                             const SizedBox(height: 8),
-                            ListenableBuilder(
-                              listenable: clientsViewModel,
-                              builder: (context, child) {
-                                return SearchAnchor.bar(
-                                  barBackgroundColor: WidgetStatePropertyAll(
-                                    Colors.white,
-                                  ),
-                                  constraints: BoxConstraints.tightFor(
-                                    height: 48,
-                                  ),
-                                  barShape: WidgetStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(
-                                        width: 1,
-                                        color: Colors.black26,
-                                      ),
-                                    ),
-                                  ),
-                                  barElevation: WidgetStatePropertyAll(0),
-                                  viewHeaderHeight: 48,
-                                  viewShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  viewBackgroundColor: Colors.white,
-                                  barHintText: 'Selecionar usuário',
-                                  suggestionsBuilder: (
-                                    context,
-                                    controller,
-                                  ) async {
-                                    if (controller.text.isNotEmpty &&
-                                        controller.text.length > 2) {
-                                      await clientsViewModel.getByName.execute(
-                                        controller.text,
-                                      );
-                                    }
-
-                                    if (clientsViewModel.getByName.running) {
-                                      return [
-                                        const Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      ];
-                                    }
-
-                                    final clientes =
-                                        clientsViewModel.items ?? [];
-
-                                    if (clientes.isEmpty) {
-                                      return [
-                                        const ListTile(
-                                          title: Text(
-                                            'Nenhum cliente encontrado',
-                                          ),
-                                        ),
-                                      ];
-                                    }
-
-                                    return clientes.map<Widget>((cliente) {
-                                      return ListTile(
-                                        title: Text(cliente.name),
-                                        onTap: () {
-                                          controller.text = cliente.name;
-                                        },
-                                      );
-                                    }).toList();
-                                  },
-                                );
+                            ClientSelect(
+                              onChange: (value) {
+                                setState(() {
+                                  client = value;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            UserSelect(
+                              onChange: (value) {
+                                setState(() {
+                                  user = value;
+                                });
                               },
                             ),
                           ],
@@ -396,12 +347,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         listenable: orderViewModel,
                         builder: (context, child) {
                           Pedido? pedido = orderViewModel.pedido;
+                          pedido?.idClient = client?.id;
+                          pedido?.idFormaPagamento = paymentMethod?.id;
+                          pedido?.idUser = user?.id;
                           return Column(
                             children: [
                               Button(
                                 label: 'Finalizar',
                                 variant: ButtonVariant.success,
-                                onPressed: () {},
+                                onPressed:
+                                    pedido != null &&
+                                            client != null &&
+                                            paymentMethod != null &&
+                                            user != null
+                                        ? () => orderViewModel.create.execute(
+                                          pedido,
+                                        )
+                                        : null,
                               ),
                             ],
                           );

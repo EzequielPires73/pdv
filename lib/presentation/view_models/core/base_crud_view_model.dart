@@ -1,4 +1,6 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:comerciou_pdv/domain/repositories/core/repository.dart';
+import 'package:comerciou_pdv/main.dart';
 import 'package:comerciou_pdv/utils/command.dart';
 import 'package:comerciou_pdv/utils/result.dart';
 import 'package:flutter/material.dart';
@@ -95,13 +97,17 @@ abstract class BaseCrudViewModel<T> extends ChangeNotifier {
   }
 
   void showToast(String message, {bool isError = false}) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: isError ? Colors.red.shade50 : Colors.green.shade50,
-      textColor: isError ? Colors.red : Colors.green,
-      fontSize: 12,
-    );
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      Flushbar(
+        title: isError ? 'Ops, algo deu errado!' : 'Tudo certo!',
+        message: message,
+        duration: Duration(seconds: 2),
+        backgroundColor: isError ? Colors.red.shade100 : Colors.green.shade100,
+        flushbarPosition: FlushbarPosition.BOTTOM,
+        titleColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+        messageColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+      ).show(context);
+    }
   }
 }
