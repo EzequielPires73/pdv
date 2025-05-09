@@ -16,7 +16,7 @@ abstract class BaseCrudViewModel<T> extends ChangeNotifier {
   final IRepository<T> repository;
   List<T>? items;
   T? itemDetails;
-  dynamic? itemId;
+  dynamic itemId;
 
   late Command0 load;
   late Command1<void, T> create;

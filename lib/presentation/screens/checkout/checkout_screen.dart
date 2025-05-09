@@ -1,6 +1,9 @@
+import 'package:comerciou_pdv/domain/models/forma_pagamento.dart';
 import 'package:comerciou_pdv/domain/models/pedido.dart';
 import 'package:comerciou_pdv/injections.dart';
+import 'package:comerciou_pdv/presentation/view_models/clients_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
+import 'package:comerciou_pdv/presentation/view_models/payment_mothods_view_model.dart';
 import 'package:comerciou_pdv/presentation/widgets/button.dart';
 import 'package:comerciou_pdv/presentation/widgets/custom_text_field.dart';
 import 'package:comerciou_pdv/presentation/widgets/only_dashed_border.dart';
@@ -34,7 +37,9 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final OrderViewModel orderViewModel = injec();
-  PaymentMethod? paymentMethod = PaymentMethod.dinheiro;
+  final ClientsViewModel clientsViewModel = injec();
+  final PaymentMothodsViewModel paymentMothodsViewModel = injec();
+  FormaPagamento? paymentMethod;
 
   @override
   Widget build(BuildContext context) {
@@ -77,40 +82,75 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ),
                             Text('Informações do cliente (opcional)'),
                             const SizedBox(height: 8),
-                            Row(
-                              spacing: 8,
-                              children: [
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: TextEditingController(),
-                                    label: 'Nome',
+                            ListenableBuilder(
+                              listenable: clientsViewModel,
+                              builder: (context, child) {
+                                return SearchAnchor.bar(
+                                  barBackgroundColor: WidgetStatePropertyAll(
+                                    Colors.white,
                                   ),
-                                ),
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: TextEditingController(),
-                                    label: 'CPF/CNPJ',
+                                  constraints: BoxConstraints.tightFor(
+                                    height: 48,
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              spacing: 8,
-                              children: [
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: TextEditingController(),
-                                    label: 'Email',
+                                  barShape: WidgetStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                        width: 1,
+                                        color: Colors.black26,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: TextEditingController(),
-                                    label: 'Telefone',
+                                  barElevation: WidgetStatePropertyAll(0),
+                                  viewHeaderHeight: 48,
+                                  viewShape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-                              ],
+                                  viewBackgroundColor: Colors.white,
+                                  barHintText: 'Selecionar usuário',
+                                  suggestionsBuilder: (
+                                    context,
+                                    controller,
+                                  ) async {
+                                    if (controller.text.isNotEmpty &&
+                                        controller.text.length > 2) {
+                                      await clientsViewModel.getByName.execute(
+                                        controller.text,
+                                      );
+                                    }
+
+                                    if (clientsViewModel.getByName.running) {
+                                      return [
+                                        const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ];
+                                    }
+
+                                    final clientes =
+                                        clientsViewModel.items ?? [];
+
+                                    if (clientes.isEmpty) {
+                                      return [
+                                        const ListTile(
+                                          title: Text(
+                                            'Nenhum cliente encontrado',
+                                          ),
+                                        ),
+                                      ];
+                                    }
+
+                                    return clientes.map<Widget>((cliente) {
+                                      return ListTile(
+                                        title: Text(cliente.name),
+                                        onTap: () {
+                                          controller.text = cliente.name;
+                                        },
+                                      );
+                                    }).toList();
+                                  },
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -134,62 +174,56 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ),
                             Text('Selecione a forma de pagamento'),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RadioListTile(
-                                    value: PaymentMethod.dinheiro,
-                                    groupValue: paymentMethod,
-                                    title: Text(PaymentMethod.dinheiro.name()),
-                                    onChanged:
-                                        (value) => setState(() {
-                                          paymentMethod = value;
-                                        }),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: RadioListTile(
-                                    value: PaymentMethod.pix,
-                                    groupValue: paymentMethod,
-                                    title: Text(PaymentMethod.pix.name()),
-                                    onChanged:
-                                        (value) => setState(() {
-                                          paymentMethod = value;
-                                        }),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: RadioListTile(
-                                    value: PaymentMethod.cartaoCredito,
-                                    groupValue: paymentMethod,
-                                    title: Text(
-                                      PaymentMethod.cartaoCredito.name(),
+                            ListenableBuilder(
+                              listenable: paymentMothodsViewModel,
+                              builder: (context, child) {
+                                if (paymentMothodsViewModel.load.running) {
+                                  return CircularProgressIndicator();
+                                }
+                                if (paymentMothodsViewModel.load.error) {
+                                  return Center(
+                                    child: Text(
+                                      'Erro ao carregar formas de pagamento.',
                                     ),
-                                    onChanged:
-                                        (value) => setState(() {
-                                          paymentMethod = value;
-                                        }),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: RadioListTile(
-                                    value: PaymentMethod.cartaoDebito,
-                                    groupValue: paymentMethod,
-                                    title: Text(
-                                      PaymentMethod.cartaoDebito.name(),
+                                  );
+                                }
+                                if (paymentMothodsViewModel.load.completed &&
+                                    paymentMothodsViewModel.items != null &&
+                                    paymentMothodsViewModel.items!.isEmpty) {
+                                  return Center(
+                                    child: Text(
+                                      'Nenhuma categoria encontrada.',
                                     ),
-                                    onChanged:
-                                        (value) => setState(() {
-                                          paymentMethod = value;
-                                        }),
-                                  ),
-                                ),
-                              ],
+                                  );
+                                }
+                                List<FormaPagamento> items =
+                                    paymentMothodsViewModel.items ?? [];
+
+                                return Column(
+                                  children:
+                                      items
+                                          .map(
+                                            (e) => Card.outlined(
+                                              clipBehavior: Clip.antiAlias,
+                                              color:
+                                                  paymentMethod?.id != e.id
+                                                      ? Colors.transparent
+                                                      : null,
+                                              child:
+                                                  RadioListTile<FormaPagamento>(
+                                                    value: e,
+                                                    groupValue: paymentMethod,
+                                                    title: Text(e.nome),
+                                                    onChanged:
+                                                        (value) => setState(() {
+                                                          paymentMethod = value;
+                                                        }),
+                                                  ),
+                                            ),
+                                          )
+                                          .toList(),
+                                );
+                              },
                             ),
                           ],
                         ),

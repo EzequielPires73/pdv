@@ -7,7 +7,7 @@ class ApiService {
   ApiService({required this.dio}) {
     dio.options.baseUrl = 'https://api.comerciou.com.br/api/';
     dio.options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlVzdcOhcmlvIHBhZHLDo28iLCJVc2VySWQiOiIxIiwiRW1wcmVzYUlkIjoiMSIsIm5iZiI6MTc0NjYxOTI2OCwiZXhwIjoxNzQ2NzA1NjY4LCJpYXQiOjE3NDY2MTkyNjh9.TFg3n2D9yz9IKHK8dkrWYXBhG2pZEjOKwPs4w3uN2IQ';
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlVzdcOhcmlvIHBhZHLDo28iLCJVc2VySWQiOiIxIiwiRW1wcmVzYUlkIjoiMSIsIm5iZiI6MTc0NjgyMDc1NCwiZXhwIjoxNzQ2OTA3MTU0LCJpYXQiOjE3NDY4MjA3NTR9.1edlJYQUowOx0ODL9agl2MaYkGBnww-Jp5cFTa9CJ5M';
     dio.options.connectTimeout = const Duration(seconds: 60);
     dio.options.receiveTimeout = const Duration(seconds: 60);
 
@@ -31,7 +31,7 @@ class ApiService {
     dio.options.headers.remove('Authorization');
   }
 
-  Future<Map<String, dynamic>> get(
+  Future<dynamic> get(
     String endpoint, {
     Map<String, dynamic>? params,
     String? token,
@@ -40,12 +40,11 @@ class ApiService {
       if (token != null) {
         dio.options.headers['Authorization'] = 'Bearer $token';
       }
-
+      print([endpoint, params]);
       final response = await dio.get(endpoint, queryParameters: params);
-
       return response.data;
     } on DioException catch (e) {
-      print(['Error aqui', e.error]);
+      print(e);
       throw ServerException(message: 'Erro de servidor');
     }
   }
