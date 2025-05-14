@@ -1,5 +1,5 @@
 import 'package:comerciou_pdv/injections.dart';
-import 'package:comerciou_pdv/presentation/screens/home/home_screen.dart';
+import 'package:comerciou_pdv/presentation/screens/auth/initial_screen.dart';
 import 'package:comerciou_pdv/utils/custom_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +21,17 @@ class App extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
         colorScheme: ColorScheme.fromSeed(seedColor: CustomColors.primary),
+        scaffoldBackgroundColor: CustomColors.scaffold,
         inputDecorationTheme: InputDecorationTheme(
           //alignLabelWithHint: true,
           hintStyle: const TextStyle(
@@ -53,7 +63,7 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: const InitialScreen(),
     );
   }
 }

@@ -14,7 +14,7 @@ class Produto {
   final bool? possuiVariacao;
   final bool? showInMenu;
   final List<Modelo> modelos;
-  final int categoriaId;
+  final int? categoriaId;
   final Categoria? categoria;
   final List<dynamic>? estoques;
   final List<dynamic>? vendaProdutos;
@@ -42,7 +42,7 @@ class Produto {
     this.possuiVariacao,
     this.showInMenu,
     required this.modelos,
-    required this.categoriaId,
+    this.categoriaId,
     this.categoria,
     this.estoques,
     this.vendaProdutos,
@@ -60,19 +60,28 @@ class Produto {
 
   factory Produto.fromJson(Map<String, dynamic> json) {
     return Produto(
-      nome: json['nome'],
+      nome: json['nome'] ?? json['name'] ?? '',
       foto: json['foto'],
       pathLocation: json['pathLocation'],
-      quantidade: json['quantidade'],
+      quantidade: json['quantidade'] ?? 0,
       marca: json['marca'],
-      valor: (json['valor'] as num).toDouble(),
+      valor:
+          json['valor'] != null
+              ? (json['valor'] as num).toDouble()
+              : json['value'] != null
+              ? (json['value'] as num).toDouble()
+              : 0.0,
       descricao: json['descricao'],
-      codigoReferencia: json['codigoReferencia'],
+      codigoReferencia: json['codigoReferencia'] ?? json['codRef'] ?? '',
       movimentaEstoque: json['movimentaEstoque'],
       possuiVariacao: json['possuiVariacao'],
       showInMenu: json['showInMenu'],
       modelos:
-          (json['modelos'] as List).map((e) => Modelo.fromJson(e)).toList(),
+          json['modelos'] != null
+              ? (json['modelos'] as List)
+                  .map((e) => Modelo.fromJson(e))
+                  .toList()
+              : [],
       categoriaId: json['categoriaId'],
       categoria:
           json['categoria'] != null
@@ -88,8 +97,14 @@ class Produto {
       idEmpresa: json['idEmpresa'],
       empresa: json['empresa'],
       id: json['id'],
-      createdDate: DateTime.parse(json['createdDate']),
-      updatedDate: DateTime.parse(json['updatedDate']),
+      createdDate:
+          json['createdDate'] != null
+              ? DateTime.parse(json['createdDate'])
+              : null,
+      updatedDate:
+          json['updatedDate'] != null
+              ? DateTime.parse(json['updatedDate'])
+              : null,
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:comerciou_pdv/data/repositories/auth_repository_imp.dart';
 import 'package:comerciou_pdv/data/repositories/category_repository_imp.dart';
 import 'package:comerciou_pdv/data/repositories/client_repository_imp.dart';
 import 'package:comerciou_pdv/data/repositories/order_repository_imp.dart';
@@ -5,12 +6,14 @@ import 'package:comerciou_pdv/data/repositories/payment_method_repository_imp.da
 import 'package:comerciou_pdv/data/repositories/product_repository_imp.dart';
 import 'package:comerciou_pdv/data/repositories/user_repository_imp.dart';
 import 'package:comerciou_pdv/data/services/api_service.dart';
+import 'package:comerciou_pdv/domain/repositories/auth_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/category_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/client_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/order_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/payment_method_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/product_repository.dart';
 import 'package:comerciou_pdv/domain/repositories/user_repository.dart';
+import 'package:comerciou_pdv/presentation/view_models/auth_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/categories_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/clients_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
@@ -32,7 +35,7 @@ Future<void> initInjec() async {
   );
 
   injec.registerLazySingleton<ProductsViewModel>(
-    () => ProductsViewModel(repository: injec()),
+    () => ProductsViewModel(productRepository: injec()),
   );
 
   injec.registerLazySingleton<CategoryRepository>(
@@ -73,5 +76,13 @@ Future<void> initInjec() async {
 
   injec.registerLazySingleton<OrderViewModel>(
     () => OrderViewModel(repository: injec()),
+  );
+
+  injec.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImp(api: injec()),
+  );
+
+  injec.registerLazySingleton<AuthViewModel>(
+    () => AuthViewModel(repository: injec()),
   );
 }

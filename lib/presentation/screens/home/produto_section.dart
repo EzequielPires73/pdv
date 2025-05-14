@@ -1,11 +1,16 @@
 import 'package:comerciou_pdv/domain/models/categoria.dart';
+import 'package:comerciou_pdv/domain/models/item_pedido.dart';
 import 'package:comerciou_pdv/domain/models/produto.dart';
 import 'package:comerciou_pdv/injections.dart';
+import 'package:comerciou_pdv/presentation/screens/home/product_select.dart';
 import 'package:comerciou_pdv/presentation/view_models/categories_view_model.dart';
+import 'package:comerciou_pdv/presentation/view_models/order_view_model.dart';
 import 'package:comerciou_pdv/presentation/view_models/products_view_model.dart';
+import 'package:comerciou_pdv/presentation/widgets/custom_text_field.dart';
 import 'package:comerciou_pdv/presentation/widgets/product_card.dart';
 import 'package:comerciou_pdv/utils/custom_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ProdutoSection extends StatefulWidget {
   const ProdutoSection({super.key});
@@ -16,7 +21,11 @@ class ProdutoSection extends StatefulWidget {
 
 class _ProdutoSectionState extends State<ProdutoSection> {
   final ProductsViewModel productsViewModel = injec();
+  final OrderViewModel orderViewModel = injec();
+  final SearchController productController = SearchController();
   final CategoriesViewModel categoriesViewModel = injec();
+  final TextEditingController quantity = TextEditingController();
+  Produto? produto;
 
   @override
   void initState() {
@@ -39,38 +48,62 @@ class _ProdutoSectionState extends State<ProdutoSection> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   spacing: 8,
                   children: [
                     Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Procurar por produto...',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.w300,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
+                      child: ProductSelect(
+                        controller: productController,
+                        onChange: (value) {
+                          setState(() {
+                            produto = value;
+                          });
+                        },
                       ),
                     ),
                     Container(
                       width: double.infinity,
                       constraints: BoxConstraints(maxWidth: 200),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Quantidade',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.w300,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
+                      child: CustomTextField(
+                        controller: quantity,
+                        label: 'Quantidade',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                       ),
                     ),
                     SizedBox(
                       width: 48,
                       height: 48,
                       child: IconButton.filled(
-                        onPressed: () {},
-                        icon: Icon(Icons.search),
+                        onPressed:
+                            produto != null
+                                ? () {
+                                  orderViewModel.addItem(
+                                    ItemPedido(
+                                      idProduto: produto!.id!,
+                                      precoTotal:
+                                          quantity.text.isNotEmpty
+                                              ? int.parse(quantity.text) *
+                                                  produto!.valor
+                                              : produto!.valor,
+                                      precoUn: produto!.valor,
+                                      quantidade:
+                                          quantity.text.isNotEmpty
+                                              ? int.parse(quantity.text)
+                                              : 1,
+                                      produto: produto!,
+                                    ),
+                                  );
+                                  setState(() {
+                                    produto = null;
+                                  });
+                                  quantity.text = '1';
+                                  productController.clear();
+                                }
+                                : null,
+                        icon: Icon(Icons.arrow_forward),
                         style: ButtonStyle(
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(

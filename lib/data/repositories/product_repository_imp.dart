@@ -39,6 +39,26 @@ class ProductRepositoryImp implements ProductRepository {
   }
 
   @override
+  Future<Result<List<Produto>>> getAllByName({
+    Map<String, dynamic>? filters,
+  }) async {
+    try {
+      var res = await api.get('Produtos/GetAllContains', params: filters);
+      print(res);
+
+      List data = res as List;
+      List<Produto> products = data.map((e) => Produto.fromJson(e)).toList();
+
+      return Result.ok(products);
+    } catch (error) {
+      print(error);
+      return Result.error(
+        Exception('Não foi possível converter a lista de produtos.'),
+      );
+    }
+  }
+
+  @override
   Future<Result<Produto>> getOneById(id) {
     // TODO: implement getOneById
     throw UnimplementedError();
